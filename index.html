@@ -15,7 +15,7 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="input-group">
-                    <input id="txtSearch" type="text" class="form-control">
+                    <input id="txtSearch" type="text" class="form-control" placeholder="Enter a Country Name">
                     <button id="btnSearch" class="btn btn-primary">Load</button>
                     
                 </div>
@@ -38,27 +38,17 @@
             getCountry(text);
         });
       function getCountry(country) {
-        const request = new XMLHttpRequest();
-
-        request.open("GET", "https://restcountries.com/v3.1/name/" + country);
-        request.send();
-
-        // async
-
-        request.addEventListener("load", function () {
-          const data = JSON.parse(this.responseText);
-          //  console.log(data);
+        fetch("https://restcountries.com/v3.1/name/" + country)
+        .then((response)=>response.json())
+        .then((data)=>{
           renderCountry(data[0]);
           const countries = data[0].borders.toString();
-          const req = new XMLHttpRequest();
-          req.open("GET", "https://restcountries.com/v3.1/alpha?codes=" + countries);
-          req.send();
-          req.addEventListener("load", function () {
-            const data = JSON.parse(this.responseText);
-            renderNeighbour(data);
-          });
-        });
-      }
+          return fetch("https://restcountries.com/v3.1/alpha?codes=" + countries)
+        })
+        .then((response)=>response.json())
+        .then((data)=>renderNeighbour(data));
+      
+       }
 
       function renderCountry(data) {
         let html = `
@@ -88,6 +78,11 @@
                                 <div class="col-8">${Object.values(data.languages)}</div>
 
                             </div>
+                            <div class="row">
+                                <div class="col-4">Para Birimi</div>
+                                <div class="col-8">${Object.values(data.currencies)[0].name}(${Object.values(data.currencies)[0].symbol})</div>
+
+                            </div>
                         </div>
 
                     </div>
@@ -106,7 +101,7 @@
             html += `
             <div class="col-2 mt-2">
                 <div class="card">
-                    <img src="${x.flags.png}"alt="" class="card-img-top">
+                    <img src="${x.flags.png}"alt="" class="card-img-top  style="height:120px"">
                     <div class="card-body">
                         <h6 class="card-tittle">${x.name.common}</h6>
                         
